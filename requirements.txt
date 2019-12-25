@@ -1,0 +1,11 @@
+flask
+flask-wtf
+flask-sqlalchemy
+psycopg2-binary
+flask-migrate
+flask-login
+flask-mail
+pyjwt
+flask-bootstrap
+flask-babel
+

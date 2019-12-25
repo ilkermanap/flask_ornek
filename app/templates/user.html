@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <p><img src="{{ user.avatar(128) }}" </p>
+    <h1>{{ _('User:') }} {{ user.username }}</h1>
+    <p>{{ _('Email:') }} {{ user.email }}</p>
+    {% if user.about_me %}<p>{{ user.about_me }}</p> {% endif %}
+    {% if user.last_seen %}<p>{{ _('Last seen on:') }} {{ user.last_seen }}</p> {% endif %}
+
+     {% if user == current_user %}
+     <p><a href="{{ url_for('edit_profile') }}">{{ _('Edit your profile') }}</a></p>
+     {% endif %}
+{% endblock %}
