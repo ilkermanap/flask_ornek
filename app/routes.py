@@ -6,6 +6,7 @@ from flask_login import current_user, login_user, login_required, logout_user
 from app.models import User
 from app import db
 from app.email import send_password_reset_email
+from flask_babel import lazy_gettext as _l
 
 from datetime import datetime
 
