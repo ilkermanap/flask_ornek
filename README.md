@@ -95,14 +95,14 @@ Debian 10 kullandığımızı yukarıda belirtmiştik. Önce yetkili kullanıcı
    $ su -
 
 Ardından postgresql-11 paketini kurarız:
-
+```
    # apt install postgresql-11
-
+```
 postgres kullanıcısı olup, veritabanı ve kullanıcı oluşturma işlemlerini yaparız:
-
+```
    # su - postgres
    postgres:~$ 
-   
+```
 
 
 
