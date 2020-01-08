@@ -50,6 +50,7 @@ Bu adım sonunda flask, flask-wtf, flask-sqlalchemy, psycopg2-binary, flask-migr
 
 ## Uygulama Yapısı
 
+'''
    babel.cfg
    config.py
    template.py
@@ -82,6 +83,7 @@ Bu adım sonunda flask, flask-wtf, flask-sqlalchemy, psycopg2-binary, flask-migr
         └── tr
        	    └── LC_MESSAGES
              	└── messages.po
+'''
 
 ## Veritabanı Yapılandırma
 
