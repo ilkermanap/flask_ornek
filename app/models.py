@@ -26,7 +26,7 @@ class User(UserMixin, db.Model):
     enabled = db.Column(db.Integer, default=0) # 0 not enabled, 1 enabled
 
     def __repr__(self):
-        return '<User {}>'.format(self.username)    
+        return '<User {}>'.format(self.username)
 
     def set_password(self, password):
         self.password_hash = generate_password_hash(password)
@@ -36,8 +36,7 @@ class User(UserMixin, db.Model):
 
     def avatar(self, size):
         digest = md5(self.email.lower().encode('utf-8')).hexdigest()
-        return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(
-            digest, size)
+        return 'https://www.gravatar.com/avatar/{}?d=identicon&s={}'.format(digest, size)
 
     def get_reset_password_token(self, expires_in=600):
         return jwt.encode(
