@@ -242,10 +242,186 @@ komutunu çalıştırıp, web tarayıcınızda http://127.0.0.1:5000  adresine
 giderek uygulamayı kullanabilirsiniz. Bu aşamada kullanıcı oluşturma,  
 oluşturulan kullanıcı adı ve parolası ile giriş yapma işlemleri çalışacaktır.
 
+## Elektronik Posta Desteği
+Uygulamamızın eposta ile parola sıfırlama isteği gönderebilme yeteneği vardır. 
+Bu yeteneğin kullanılabilmesi için, config.py içindeki eposta servisi ayarlarının 
+yapılması gerekmektedir.
 
+```
+ADMINS=["ilkermanap@gmail.com"]
+MAIL_SERVER="smtp.gmail.com"
+MAIL_PASSWORD='xxxxxxxxx'
+MAIL_PORT=465
+MAIL_USE_SSL=True
+MAIL_USE_TLS=False
+MAIL_USERNAME="ilkermanap@gmail.com"
+```
 
+ADMINS, MAIL_USERNAME ve MAIL_PASSWORD alanlarını güncelleyip uygulamayı
+yeniden başlatırsanız, eposta ile parola sıfırlama isteği yapabileceksiniz.
+
+ ## Çoklu Dil Desteği
+ Çoklu dil desteği, flask-babel modülü ile gelmektedir.  Uygulama içinde farklı dillere 
+ çevirilmesi gereken metinlerin işaretlenmesi gerekmektedir.  
  
+Uygulama içinde:
+```
+class LoginForm(FlaskForm):
+    username = StringField(_l('Username'), validators=[DataRequired()])
+    password = PasswordField(_l('Password'), validators=[DataRequired()])
+    remember_me = BooleanField(_l('Remember Me'))
+    submit = SubmitField(_l('Sign In'))
+```
 
+Ya da jinja template dosyalarında: 
+```
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html"  as wtf %}
+
+{% block app_content %}
+    <h1>{{ _('Sign In') }}</h1>
+    <div class="row">
+      <div class="col-md-4">
+	{{ wtf.quick_form(form) }}
+      </div>
+    </div>    
+
+    <div class="row"> {{ _('New User?') }} <a href="{{ url_for('register') }}"> {{ _('Click to Register!') }}</a> </div> 
+    <div class="row"> {{ _('Forgot Your Password?') }}
+        <a href="{{ url_for('reset_password_request') }}">{{ _('Click to Reset It') }}</a>
+    </div>
+{% endblock %}
+```
+Farklı dillere çevirilmesi gereken metinleri uygulama ya da template dosyaları içinde
+_() ya da _l() veririz. 
+
+flask-babel ile kurulan yardımcı uygulamalar ile, tercüme edilmesi gereken metin 
+kataloğu oluşturulur:
+
+```
+(venv) $ pybabel extract -F babel.cfg -k _l -o messages.pot .
+extracting messages from app/__init__.py
+extracting messages from app/email.py
+extracting messages from app/errors.py
+extracting messages from app/forms.py
+extracting messages from app/models.py
+extracting messages from app/routes.py
+extracting messages from app/templates/404.html (extensions="jinja2.ext.autoescape, jinja2.ext.with_")
+extracting messages from app/templates/500.html (extensions="jinja2.ext.autoescape, jinja2.ext.with_")
+extracting messages from app/templates/base.html (extensions="jinja2.ext.autoescape, jinja2.ext.with_")
+extracting messages from app/templates/edit_profile.html (extensions="jinja2.ext.autoescape, jinja2.ext.with_")
+extracting messages from app/templates/index.html (extensions="jinja2.ext.autoescape, jinja2.ext.with_")
+extracting messages from app/templates/login.html (extensions="jinja2.ext.autoescape, jinja2.ext.with_")
+extracting messages from app/templates/register.html (extensions="jinja2.ext.autoescape, jinja2.ext.with_")
+extracting messages from app/templates/reset_password.html (extensions="jinja2.ext.autoescape, jinja2.ext.with_")
+extracting messages from app/templates/reset_password_request.html (extensions="jinja2.ext.autoescape, jinja2.ext.with_")
+extracting messages from app/templates/user.html (extensions="jinja2.ext.autoescape, jinja2.ext.with_")
+extracting messages from app/templates/email/reset_password.html (extensions="jinja2.ext.autoescape, jinja2.ext.with_")
+writing PO template file to messages.pot
+```
+
+Şimdi türkçe tercümeler için gerekli dosyaları oluşturalım:  
+```
+(venv) $ pybabel init -i messages.pot -d app/translations -l tr
+creating catalog app/translations/tr/LC_MESSAGES/messages.po based on messages.pot
+``` 
+
+Yukarıdaki komutla oluşturulan türkçe çeviri dosyasından birkaç satır aşağıdadır:
+``` 
+.
+.
+#: app/email.py:22
+msgid "[Flask Template] Reset Your Password"
+msgstr ""
+
+#: app/forms.py:8 app/forms.py:15 app/forms.py:34
+msgid "Username"
+msgstr ""
+
+#: app/forms.py:9 app/forms.py:17 app/forms.py:54
+msgid "Password"
+msgstr ""
+.
+.
+``` 
+
+Yukarıdaki birkaç satırı aşağıdaki şekilde güncelleyip kaydedelim:
+``` 
+.
+.
+#: app/email.py:22
+msgid "[Flask Template] Reset Your Password"
+msgstr "[Flask Örnek] Parolanızı Sıfırlayın"
+
+#: app/forms.py:8 app/forms.py:15 app/forms.py:34
+msgid "Username"
+msgstr "Kullanıcı Adı"
+
+#: app/forms.py:9 app/forms.py:17 app/forms.py:54
+msgid "Password"
+msgstr "Parola"
+.
+.
+``` 
+
+Şimdi de yapılan tercümeleri derleyelim:
+``` 
+(venv) $ pybabel compile -d app/translations
+compiling catalog app/translations/tr/LC_MESSAGES/messages.po to app/translations/tr/LC_MESSAGES/messages.mo
+``` 
+
+Uygulamayı çalıştırıp tarayıcıda sağ üstte gelen dil linklerine tıkladığınızda, 
+yaptığımız tercümelere göre ekrandaki mesajların değiştiğini göreceksiniz. 
+
+Uygulama ile sadece ingilizce ve türkçe linkleri gelmektedir. Şimdi de ispanyolca 
+ekleyelim. Bunun için ilk değişiklik config.py dosyasında yapılacaktır. Aşağıdaki 
+satırı:
+``` 
+LANGUAGES = {"en": "English", "tr":"Turkish"}
+``` 
+şu şekilde değiştirelim:
+``` 
+LANGUAGES = {"en": "English", "tr":"Turkish", "es":"Spanish"}
+``` 
+
+Uygulamayı çalıştırdığımızda, sağ üstte görüntülenen diller arasına ispanyolcanın 
+da geldiğini göreceğiz. Henüz tercümesi yapılmadığından, ispanyolca seçilirse mesajlar 
+yine ingilizce görünecektir. Yukarıda türkçe için yaptığımız işlemleri ispanyolca 
+için de yapalım:
+```
+(venv) $ pybabel init -i messages.pot -d app/translations -l es
+creating catalog app/translations/tr/LC_MESSAGES/messages.po based on messages.pot
+``` 
+
+Tercümeleri yapalım, ispanyolcaları google translate ile buldum, 
+doğruluğundan emin değilim: 
+``` 
+.
+.
+#: app/email.py:22
+msgid "[Flask Template] Reset Your Password"
+msgstr "[Flask Modelo] Restablecer su contraseña"
+
+#: app/forms.py:8 app/forms.py:15 app/forms.py:34
+msgid "Username"
+msgstr "Nombre de usuario"
+
+#: app/forms.py:9 app/forms.py:17 app/forms.py:54
+msgid "Password"
+msgstr "Contraseña"
+.
+.
+``` 
+Derleyelim:
+``` 
+(venv) $ pybabel compile -d app/translations
+compiling catalog app/translations/tr/LC_MESSAGES/messages.po to app/translations/tr/LC_MESSAGES/messages.mo
+compiling catalog app/translations/es/LC_MESSAGES/messages.po to app/translations/es/LC_MESSAGES/messages.mo
+``` 
+
+Uygulamayı çalıştırdığımızda, ispanyolca çevirisini yaptığımız kısımların 
+ispanyolca seçildiği zaman görüntülendiğini görürüz.
+ 
 
 
 
