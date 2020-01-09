@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% import "bootstrap/wtf.html"  as wtf %}
+
+{% block app_content %}
+    <h1>{{ _('Admin Page') }}</h1>
+    <section class="bg-secondary">
+    </section>
+    <div class="row">
+      <div class="col-md-1"> Username  </div>
+      <div class="col-md-3"> Email  </div>
+      <div class="col-md-3"> Last Seen  </div>
+      <div class="col-md-1">Enabled</div>
+      <div class="col-md-1">Action</div>
+      <div class="col-md-1">Admin</div>
+      <div class="col-md-1">Action</div>
+      <div class="col-md-1">Record</div>
+      
+     </div>
+   {% for u in users %}
+    <div class="row">
+      <div class="col-md-1"> {{ u.username }}  </div>
+      <div class="col-md-3"> {{ u.email }}  </div>
+      <div class="col-md-3"> {{ u.last_seen }}  </div>
+
+      {% if u.enabled == 1 %} 
+      <div class="col-md-1">Enabled</div>
+      <div class="col-md-1"><a href="/disable/{{ u.id }}">Disable</a></div>
+      {% else %}
+      <div class="col-md-1">Disabled</div>
+      <div class="col-md-1"><a href="/enable/{{ u.id }}">Enable</a></div>
+      {% endif %}
+
+
+      {% if u.admin == 1 %} 
+      <div class="col-md-1">Admin User</div>
+      <div class="col-md-1"><a href="/revokeadmin/{{ u.id }}">Revoke</a></div>
+      {% else %}
+      <div class="col-md-1">Normal User</div>
+      <div class="col-md-1"><a href="/grantadmin/{{ u.id }}">Grant</a></div>
+      {% endif %}
+      <div class="col-md-1"><a href="/deleteuser/{{ u.id }}">Delete</a></div>
+    </div>    
+{% endfor %}
+{% endblock %}

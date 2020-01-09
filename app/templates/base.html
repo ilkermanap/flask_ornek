@@ -26,6 +26,7 @@
                     <li><a href="{{ url_for('login') }}">{{ _('Login') }}</a></li>
                     {% else %}
                     <li><a href="{{ url_for('user', username=current_user.username) }}">{{ _('Profile') }}</a></li>
+                    {% if current_user.admin == 1 %}<li><a href="{{ url_for('admin_page') }}">{{ _('Admin') }}</a></li> {% endif%}
                     <li><a href="{{ url_for('logout') }}">{{ _('Logout') }}</a></li>
                     {% endif %}
 		    {% for language in AVAILABLE_LANGUAGES.items() %}

@@ -22,6 +22,8 @@ class User(UserMixin, db.Model):
     password_hash = db.Column(db.String(128))
     about_me = db.Column(db.String(140))
     last_seen = db.Column(db.DateTime, default=datetime.utcnow)
+    admin = db.Column(db.Integer, default=0) # 0 not admin, 1 admin
+    enabled = db.Column(db.Integer, default=0) # 0 not enabled, 1 enabled
 
     def __repr__(self):
         return '<User {}>'.format(self.username)    

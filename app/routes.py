@@ -7,7 +7,6 @@ from app.models import User
 from app import db
 from app.email import send_password_reset_email
 from flask_babel import lazy_gettext as _l
-
 from datetime import datetime
 
 @app.route('/')
@@ -15,8 +14,7 @@ from datetime import datetime
 @login_required
 def index():
     return render_template('index.html', title='Ev')
-
-
+    
 @app.route('/language/<language>')
 def set_language(language=None):
     session['language'] = language
@@ -43,6 +41,9 @@ def logout():
     logout_user()
     return redirect(url_for('index'))
 
+
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
@@ -66,7 +67,6 @@ def user(username):
 
 
 
-
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
@@ -83,6 +83,78 @@ def edit_profile():
     return render_template('edit_profile.html', title='Edit Profile',
                            form=form)
 
+
+@app.route("/admin")
+@login_required
+def admin_page():
+    if current_user.admin == 0:
+        return render_template("notadmin.html")
+    if current_user.admin == 1:
+        users = User.query.all()
+        return render_template("admin.html", users=users)
+
+
+@app.route("/disable/<id>")
+@login_required
+def disable_user(id):
+    if current_user.admin == 1:
+        user_to_disable = User.query.filter_by(id=id).first()
+        user_to_disable.enabled = 0
+        db.session.commit()
+    else:
+        flash(_("You don't have enough privileges to access this function"))
+
+    return redirect(url_for('admin_page'))    
+
+
+@app.route("/revokeadmin/<id>")
+@login_required
+def revoke_admin(id):
+    if current_user.admin == 1:
+        user_to_disable = User.query.filter_by(id=id).first()
+        user_to_disable.admin = 0
+        db.session.commit()
+    else:
+        flash(_("You don't have enough privileges to access this function"))
+
+    return redirect(url_for('admin_page'))    
+
+
+@app.route("/grantadmin/<id>")
+@login_required
+def grant_admin(id):
+    if current_user.admin == 1:
+        user_to_disable = User.query.filter_by(id=id).first()
+        user_to_disable.admin = 1
+        db.session.commit()
+    else:
+        flash(_("You don't have enough privileges to access this function"))
+
+    return redirect(url_for('admin_page'))    
+
+@app.route("/deleteuser/<id>")
+@login_required
+def delete_user(id):
+    if current_user.admin == 1:
+        User.query.filter_by(id=id).delete()
+        db.session.commit()
+    else:
+        flash(_("You don't have enough privileges to access this function"))
+
+    return redirect(url_for('admin_page'))    
+
+
+@app.route("/enable/<id>")
+@login_required
+def enable_user(id):
+    if current_user.admin == 1:
+        user_to_enable = User.query.filter_by(id=id).first()
+        user_to_enable.enabled = 1
+        db.session.commit()
+    else:
+        flash(_("You don't have enough privileges to access this function"))
+
+    return redirect(url_for('admin_page'))    
 
 
 
