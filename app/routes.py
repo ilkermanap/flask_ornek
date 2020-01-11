@@ -8,17 +8,20 @@ from app import db
 from app.email import send_password_reset_email
 from flask_babel import lazy_gettext as _l
 from datetime import datetime
+from app.utils.decorators import admin_required
 
 @app.route('/')
 @app.route('/index')
 @login_required
 def index():
     return render_template('index.html', title='Ev')
-    
+
+
 @app.route('/language/<language>')
 def set_language(language=None):
     session['language'] = language
     return redirect(request.referrer)
+
 
 @app.route('/login', methods=['GET','POST'])
 def login():
@@ -36,12 +39,11 @@ def login():
 
     return render_template('login.html', title='Sign In', form=form)
 
+
 @app.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('index'))
-
-
 
 
 @app.route('/register', methods=['GET', 'POST'])
@@ -66,7 +68,6 @@ def user(username):
     return render_template('user.html', user=user)
 
 
-
 @app.route('/edit_profile', methods=['GET', 'POST'])
 @login_required
 def edit_profile():
@@ -86,75 +87,61 @@ def edit_profile():
 
 @app.route("/admin")
 @login_required
+@admin_required
 def admin_page():
-    if current_user.admin == 0:
-        return render_template("notadmin.html")
-    if current_user.admin == 1:
-        users = User.query.all()
-        return render_template("admin.html", users=users)
+    users = User.query.all()
+    return render_template("admin.html", users=users)
 
 
 @app.route("/disable/<id>")
 @login_required
+@admin_required
 def disable_user(id):
-    if current_user.admin == 1:
-        user_to_disable = User.query.filter_by(id=id).first()
-        user_to_disable.enabled = 0
-        db.session.commit()
-    else:
-        flash(_("You don't have enough privileges to access this function"))
-
-    return redirect(url_for('admin_page'))    
+    user_to_disable = User.query.filter_by(id=id).first()
+    user_to_disable.enabled = 0
+    db.session.commit()
+    return redirect(url_for('admin_page'))
 
 
 @app.route("/revokeadmin/<id>")
 @login_required
+@admin_required
 def revoke_admin(id):
-    if current_user.admin == 1:
-        user_to_disable = User.query.filter_by(id=id).first()
-        user_to_disable.admin = 0
-        db.session.commit()
-    else:
-        flash(_("You don't have enough privileges to access this function"))
-
-    return redirect(url_for('admin_page'))    
+    user_to_disable = User.query.filter_by(id=id).first()
+    user_to_disable.admin = 0
+    db.session.commit()
+    return redirect(url_for('admin_page'))
 
 
 @app.route("/grantadmin/<id>")
 @login_required
+@admin_required
 def grant_admin(id):
-    if current_user.admin == 1:
-        user_to_disable = User.query.filter_by(id=id).first()
-        user_to_disable.admin = 1
-        db.session.commit()
-    else:
-        flash(_("You don't have enough privileges to access this function"))
+    user_to_disable = User.query.filter_by(id=id).first()
+    user_to_disable.admin = 1
+    db.session.commit()
 
-    return redirect(url_for('admin_page'))    
+    return redirect(url_for('admin_page'))
 
 @app.route("/deleteuser/<id>")
 @login_required
+@admin_required
 def delete_user(id):
-    if current_user.admin == 1:
-        User.query.filter_by(id=id).delete()
-        db.session.commit()
-    else:
-        flash(_("You don't have enough privileges to access this function"))
+    User.query.filter_by(id=id).delete()
+    db.session.commit()
 
-    return redirect(url_for('admin_page'))    
+    return redirect(url_for('admin_page'))
 
 
 @app.route("/enable/<id>")
 @login_required
+@admin_required
 def enable_user(id):
-    if current_user.admin == 1:
-        user_to_enable = User.query.filter_by(id=id).first()
-        user_to_enable.enabled = 1
-        db.session.commit()
-    else:
-        flash(_("You don't have enough privileges to access this function"))
+    user_to_enable = User.query.filter_by(id=id).first()
+    user_to_enable.enabled = 1
+    db.session.commit()
 
-    return redirect(url_for('admin_page'))    
+    return redirect(url_for('admin_page'))
 
 
 
@@ -193,5 +180,3 @@ def before_request():
     if current_user.is_authenticated:
         current_user.last_seen = datetime.utcnow()
         db.session.commit()
-
-

@@ -1,0 +1,6 @@
+{% extends "base.html" %}
+
+{% block app_content %}
+    <h1>{{ _('You do not have permission to view that page')}}</h1>
+    <p><a href="{{ url_for('index') }}">{{ _('Back') }}</a></p>
+{% endblock %}
