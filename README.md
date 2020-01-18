@@ -32,11 +32,9 @@ Sisteminizde python3 sürümünün  kurulu olduğunu varsayıyoruz.
 
 ## Virtualenv Kurulumu
 
-
     $ sudo pip3 install virtualenv
 
 ## Github'dan Dosyaları İndir
-
 
     $ git clone https://github.com/ilkermanap/flask_ornek
 
@@ -53,7 +51,6 @@ virtualenv ortamının içinde olmayacaktır.
 
 
 ## Paketleri Kur
-
 
 Bu uygulamada kullanılan python paketleri requirements.txt dosyası 
 içinde verilmiştir. Veritabanı için postgresql kullandığım için 
@@ -138,16 +135,28 @@ Ardından postgresql-11 paketini kurarız:
    # apt install postgresql-11
 ```
 postgres kullanıcısı olup, veritabanı ve kullanıcı oluşturma işlemlerini 
-yaparız. Önce veritabanı:
+yaparız. Önce veritabanı oluşturalım:
 ```
    # su - postgres
    postgres:~$ createdb flask_ornek    
+```
+
+Sonra, postgresql servisine bağlantı sırasında bizim örnek veritabanımıza lokal olarak 
+bağlanacak olan kullanıcı için parola sormasını sağlamak için aşağıdaki satırı pg_hba.conf dosyasına ekleriz.
+Bu dosya, kullanılan dağıtıma göre farklı yerlerde bulunabilir. Centos 7 için  /var/lib/pgsql/11/data dizininde bulunmaktadır.
+
+```
    local	flask_ornek	flask_ornek_kullanici			md5
-   
+```
+Bu işlemin geçerli olabilmesi için postgresql servisinin yeniden başlatılması zorunludur. 
+
+```
+    ~$ sudo systemctl restart postgresql-11
 ```
 
 Ardından kullanıcı oluşturma ve flask_ornek veritabanı için yetki verme:
 ```
+   # su - postgres
    postgres:~$ psql
    psql (11.5 (Debian 11.5-1+deb10u1))
    Type "help" for help.
@@ -423,5 +432,26 @@ Uygulamayı çalıştırdığımızda, ispanyolca çevirisini yaptığımız kı
 ispanyolca seçildiği zaman görüntülendiğini görürüz.
  
 
+## Sunucuda Çalıştırma (DNS, SSL Sertifikası, UWSGI, NGINX Ayarları)
 
+Flask uygulamamızı bir alan adına bağlı olarak sunucu üzerinde çalıştırmanın pek çok farklı yolu bulunmaktadır. 
+İşlemlere başlamadan önce:
+* DigitalOcean, Amazon, ScaleWay gibi yabancı, Turhost, Radore gibi yerli firmalardan birinden 
+bir sanal sunucu almış olduğunuzu varsayıyoruz. 
+* Bu sanal sunucuya ssh ile erişebilmeniz ve yetkili kullanıcı olarak işlem yapabilmeniz gerekmektedir.  
+* Bu sanal sunucunun sahip olduğu IP adresini uygulamamızın çalışacağı alan adına bağlamak için, GoDaddy ya da yine 
+Turhost ve Radore gibi firmalardan birinden alan adı satın almış olmanız gereklidir. 
+
+Bu uygulamanın gösterim için çalıştığı sunucu scaleway firmasından, manap.se alan adı ise binero.se firmasından 
+alınmıştır. Alan adının satın alındığı firmanın sağladığı DNS yönetim panelinde flask.manap.se için bir A kaydı 
+oluşturulup, bu kayıtta IP adresi olarak scaleway firmasından almış olduğum sanal sunucunun IP adresi verilmiştir. 
+Böylece, web tarayıcısına http://flask.manap.se yazanlar, scaleway firmasında çalışan sanal sunucumun 80 numaralı portuna
+erişmiş olacaklardır. 
+
+Yukarıdaki hazırlıklar yapıldıktan sonra, sunucu tarafındaki ayarlar yapılmalıdır: 
+
+
+### DNS
+
+Flask uygulamamızın bir alan adı altında (örneğin flask.manap.se)  çalışabilmesi
 
