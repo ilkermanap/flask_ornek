@@ -8,4 +8,4 @@ flask-mail
 pyjwt
 flask-bootstrap
 flask-babel
-
+email-validator
